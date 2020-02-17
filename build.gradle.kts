@@ -19,6 +19,7 @@ plugins {
     signing
     checkstyle
     jacoco
+    id("com.github.johnrengelman.shadow") version "5.2.0"
     id("com.github.spotbugs") version "1.6.10"
     id("io.codearte.nexus-staging") version "0.21.0"
 }
@@ -156,6 +157,15 @@ subprojects {
 
                 // Include extra information in the POMs.
                 afterEvaluate {
+
+                    // Replace the default JAR with the shaded JAR if the task exists.
+                    if (subproject.tasks.findByName("shadowJar") != null) {
+                        configurations.archives.get().artifacts.clear()
+                        artifacts {
+                            add("archives", tasks["shadowJar"])
+                        }
+                    }
+
                     pom {
                         name.set(subproject.extra["displayName"].toString())
                         description.set(subproject.description)

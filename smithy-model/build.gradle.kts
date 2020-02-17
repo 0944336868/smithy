@@ -13,12 +13,25 @@
  * permissions and limitations under the License.
  */
 
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 description = "This module provides the core implementation of loading, validating, " +
         "traversing, mutating, and serializing a Smithy model."
 extra["displayName"] = "Smithy :: Model"
 extra["moduleName"] = "software.amazon.smithy.model"
 
+apply(plugin = "com.github.johnrengelman.shadow")
+
 dependencies {
     api(project(":smithy-utils"))
     implementation("com.fasterxml.jackson.core:jackson-core:2.9.8")
+}
+
+// Shade the Jackson Core dependency.
+tasks.withType<ShadowJar> {
+    dependencies {
+        include(dependency("com.fasterxml.jackson.core:jackson-core:2.9.8"))
+    }
+
+    relocate("com.fasterxml.jackson.core", "software.amazon.smithy.private.com.fasterxml.jackson.core")
 }
